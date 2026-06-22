@@ -87,9 +87,10 @@ class Evaluator:
 
             # Posterior variance (diagonal only)
             v        = torch.linalg.solve_triangular(L, K_star.T, upper=False)
-            var_diag = (model.sigma_f**2 * torch.ones(
-                            test_X.size(0), device=device)
-                        - (v**2).sum(dim=0)).clamp(min=1e-6)
+            prior_var = model.sigma_f**2 + model.alpha   # scalar
+            var_diag  = (prior_var * torch.ones(
+                test_X.size(0), device=device)
+             - (v**2).sum(dim=0)).clamp(min=1e-6)
             std_star = var_diag.sqrt()   # (n_test,)
 
             # Sample -> decode -> average
